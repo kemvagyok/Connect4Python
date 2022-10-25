@@ -14,7 +14,7 @@ class Node:
         self.col = col
         self.value = None
 
-    def build(self, depth : int, maxDepth : int, actual_player_index : int, other_player_index: int, board: Board):
+    def buildTree(self, depth : int, maxDepth : int, actual_player_index : int, other_player_index: int, board: Board):
             depth=depth+1
             if(depth<maxDepth):
                 if(board.get_winner()==None):
@@ -22,14 +22,12 @@ class Node:
                         newBoard = board.copy()
                         newBoard.step(actual_player_index,col)
                         newNode = Node(board = newBoard, depth=depth, col = col)
-                        newNode.build(depth,maxDepth,other_player_index,actual_player_index,newBoard)
+                        newNode.buildTree(depth, maxDepth, other_player_index, actual_player_index, newBoard)
                         self.children.append(newNode)
 
     def miniMaxSearch(self) -> int:
-            self.value = self.maxValue(-float('inf'), float('inf'))
-
+        self.value = self.maxValue(-float('inf'), float('inf'))
     def maxValue(self, alpha, beta) -> int:
-        value = self.MIN
         if (len(self.children)==0):
             return self.evaluate()
         value = self.MIN
@@ -54,18 +52,19 @@ class Node:
         return value
 
     def evaluate(self) -> int:
+
+
+
         state = self.board.get_state()
-        if self.board.get_last_player_index() == 1:
-            o_color = 2
-        elif self.board.get_last_player_index() == 2:
-            o_color = 1
-        #my_fours = self.checkForStreak(state, 1, 4)
+
+        my_fours = self.checkForStreak(state, 1, 4)
         my_threes = self.checkForStreak(state, 1, 3)
         my_twos = self.checkForStreak(state, 1, 2)
-        #comp_fours = self.checkForStreak(state, 2, 4)
+        comp_fours = self.checkForStreak(state, 2, 4)
         comp_threes = self.checkForStreak(state, 2, 3)
         comp_twos = self.checkForStreak(state, 2, 2)
-        return (my_threes * 5+ my_twos*2) - (comp_threes * 5 + comp_twos*2)
+
+        return (my_fours * 10 + comp_twos * 2) - (comp_fours * 10 + comp_twos * 2)
 
     def checkForStreak(self, state, color, streak):
         count = 0
@@ -142,7 +141,7 @@ class StudentPlayer:
             #self.__board.step(self._other_player_index, last_player_col)
 
         root = Node(depth=0,board = self.__board)
-        root.build(0, 3, 1, 2, self.__board)
+        root.buildTree(0, 6, 1, 2, self.__board)
 
         root.miniMaxSearch()
 
@@ -154,10 +153,4 @@ class StudentPlayer:
         col = root.children[maxIndex].col# your logic here
         self.__board.step(self.__player_index,col)
         return col
-
-asd = StudentPlayer(1,[6,7],4)
-asd.step(1)
-asd.step(1)
-asd.step(1)
-
 
